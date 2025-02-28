@@ -8,6 +8,7 @@ interface Dish {
   _id: string;
   name: string;
   price: number;
+  restaurantName?: string;
 }
 
 // Minimal Restaurant interface
@@ -21,7 +22,6 @@ interface Restaurant {
 }
 
 export default function RestaurantDetails() {
-  // Next.js can return `undefined` for `id`, so we safely cast or fallback
   const params = useParams() as { id?: string };
   const restaurantId = params?.id ?? "";
 
@@ -32,7 +32,6 @@ export default function RestaurantDetails() {
 
     const fetchRestaurant = async () => {
       try {
-        // ✅ Use environment variable for backend URL
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
         if (!baseUrl) {
           throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
@@ -53,10 +52,33 @@ export default function RestaurantDetails() {
     fetchRestaurant();
   }, [restaurantId]);
 
+  // ✅ "Add to Cart" Function
+  const addToCart = (dish: Dish) => {
+    if (!restaurant) return;
+
+    // Retrieve the current cart from localStorage
+    const storedCart = localStorage.getItem("cart");
+    const cartItems: Dish[] = storedCart ? JSON.parse(storedCart) : [];
+
+    // Add the new dish, including restaurant name
+    const updatedCart = [...cartItems, { ...dish, restaurantName: restaurant.name }];
+
+    // Store back to localStorage
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Optional: Provide some feedback
+    alert(`${dish.name} added to cart!`);
+
+    // Dispatch a storage event so other components (like Cart) know
+    window.dispatchEvent(new Event("storage"));
+  };
+
+  // If no ID, show a basic message
   if (!restaurantId) {
     return <p>No restaurant ID provided.</p>;
   }
 
+  // Loading state
   if (!restaurant) {
     return <p>Loading restaurant details...</p>;
   }
@@ -82,7 +104,13 @@ export default function RestaurantDetails() {
               <div className="card p-3">
                 <h5>{dish.name}</h5>
                 <p>Price: ${dish.price}</p>
-                <button className="btn btn-primary w-100">Add to Cart</button>
+                {/* ✅ Attach onClick to addToCart */}
+                <button
+                  className="btn btn-primary w-100"
+                  onClick={() => addToCart(dish)}
+                >
+                  Add to Cart
+                </button>
               </div>
             </div>
           ))}
