@@ -3,14 +3,14 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// ✅ Minimal Dish interface (avoid `any`)
+// Minimal Dish interface
 interface Dish {
   _id: string;
   name: string;
   price: number;
 }
 
-// ✅ Minimal Restaurant interface
+// Minimal Restaurant interface
 interface Restaurant {
   _id: string;
   name: string;
@@ -27,15 +27,22 @@ export default function RestaurantDetails() {
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
 
-  // ✅ Fetch restaurant details
   useEffect(() => {
     if (!restaurantId) return;
 
     const fetchRestaurant = async () => {
       try {
-        // Replace with your actual backend URL
-        const response = await fetch(`http://localhost:5000/api/restaurants/${restaurantId}`);
-        if (!response.ok) throw new Error("Failed to fetch restaurant details.");
+        // ✅ Use environment variable for backend URL
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!baseUrl) {
+          throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
+        }
+
+        const response = await fetch(`${baseUrl}/api/restaurants/${restaurantId}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch restaurant details.");
+        }
+
         const data = await response.json();
         setRestaurant(data);
       } catch (error) {
@@ -46,12 +53,10 @@ export default function RestaurantDetails() {
     fetchRestaurant();
   }, [restaurantId]);
 
-  // ✅ If no ID, show a basic message (prevents type error)
   if (!restaurantId) {
     return <p>No restaurant ID provided.</p>;
   }
 
-  // ✅ Loading state
   if (!restaurant) {
     return <p>Loading restaurant details...</p>;
   }
@@ -77,9 +82,7 @@ export default function RestaurantDetails() {
               <div className="card p-3">
                 <h5>{dish.name}</h5>
                 <p>Price: ${dish.price}</p>
-                <button className="btn btn-primary w-100">
-                  Add to Cart
-                </button>
+                <button className="btn btn-primary w-100">Add to Cart</button>
               </div>
             </div>
           ))}
