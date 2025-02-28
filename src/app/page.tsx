@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+// Minimal Dish interface
 interface Dish {
   _id: string;
   name: string;
@@ -10,6 +11,7 @@ interface Dish {
   restaurantName?: string;
 }
 
+// Minimal Restaurant interface
 interface Restaurant {
   _id: string;
   name: string;
@@ -26,8 +28,16 @@ export default function Home() {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/restaurants");
-        if (!response.ok) throw new Error("Failed to fetch restaurants.");
+        // ✅ Use NEXT_PUBLIC_BACKEND_URL instead of localhost
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+        if (!baseUrl) {
+          throw new Error("NEXT_PUBLIC_BACKEND_URL is not defined");
+        }
+
+        const response = await fetch(`${baseUrl}/api/restaurants`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch restaurants.");
+        }
         const data = await response.json();
         setRestaurants(data);
       } catch (error) {
@@ -38,10 +48,12 @@ export default function Home() {
     fetchRestaurants();
   }, []);
 
-  // ✅ Search Restaurants and Dishes
+  // Search Restaurants and Dishes
   const filteredRestaurants = restaurants
     .map((restaurant) => {
-      const matchesRestaurant = restaurant.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesRestaurant = restaurant.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       const matchingDishes = restaurant.dishes?.filter((dish) =>
         dish.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -52,13 +64,13 @@ export default function Home() {
 
       return null;
     })
-    .filter(Boolean) as Restaurant[]; // ✅ Ensure no null values
+    .filter(Boolean) as Restaurant[]; // ensures no null values
 
   return (
     <div className="container mt-4">
       <h1>Restaurant List</h1>
 
-      {/* ✅ Search Bar */}
+      {/* Search Bar */}
       <input
         type="text"
         className="form-control my-3"
@@ -67,7 +79,7 @@ export default function Home() {
         onChange={(e) => setSearchQuery(e.target.value)}
       />
 
-      {/* ✅ Display Results */}
+      {/* Display Results */}
       {filteredRestaurants.length > 0 ? (
         <div className="row">
           {filteredRestaurants.map((restaurant) => (
@@ -77,11 +89,14 @@ export default function Home() {
                 <p>{restaurant.address}</p>
                 <p>{restaurant.cuisine}</p>
                 <p>Rating: {restaurant.rating} ★</p>
-                <Link href={`/restaurant/${restaurant._id}`} className="btn btn-primary">
+                <Link
+                  href={`/restaurant/${restaurant._id}`}
+                  className="btn btn-primary"
+                >
                   View Details
                 </Link>
 
-                {/* ✅ Display matching dishes if searching for them */}
+                {/* Display matching dishes if searching */}
                 {searchQuery && restaurant.dishes?.length > 0 && (
                   <div className="mt-2">
                     <h5>Matching Dishes:</h5>
