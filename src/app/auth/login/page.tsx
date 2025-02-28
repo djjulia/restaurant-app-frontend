@@ -14,24 +14,36 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
+    console.log("🔍 Attempting to sign in with:", email, password);
+
+    // signIn("credentials") calls NextAuth's credentials provider 
+    // redirect: false means we manually handle success or error
     const result = await signIn("credentials", {
       email,
       password,
       redirect: false,
     });
 
+    console.log("🔍 signIn result:", result);
+
+    // If signIn returns { error: "..." }, we display it
     if (result?.error) {
-      setError("Invalid email or password.");
+      setError(result.error || "Invalid email or password.");
     } else {
-      router.push("/"); // ✅ Redirect to home page after login
+      // Otherwise, we assume success -> go to home page
+      router.push("/");
     }
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100">
-      <div className="card p-4 shadow-sm" style={{ width: "100%", maxWidth: "400px" }}>
+      <div
+        className="card p-4 shadow-sm"
+        style={{ width: "100%", maxWidth: "400px" }}
+      >
         <h2 className="mb-4 text-center">Login</h2>
         {error && <p className="text-danger text-center">{error}</p>}
+
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="form-label">Email</label>
@@ -43,6 +55,7 @@ export default function LoginPage() {
               required
             />
           </div>
+
           <div className="mb-3">
             <label className="form-label">Password</label>
             <input
@@ -53,10 +66,14 @@ export default function LoginPage() {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100">Login</button>
+
+          <button type="submit" className="btn btn-primary w-100">
+            Login
+          </button>
         </form>
+
         <p className="mt-3 text-center">
-        Don&rsquo;t have an account? <a href="/auth/register">Register here</a>
+          Don&rsquo;t have an account? <a href="/auth/register">Register here</a>
         </p>
       </div>
     </div>
