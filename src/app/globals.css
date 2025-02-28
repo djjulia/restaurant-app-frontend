@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.cart-button {
+  font-size: 1.6rem; /* Reduced size (previously 1.8rem) */
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-right: 15px; /* Moves cart closer to login/register */
+}
+
+.cart-count {
+  background: red;
+  color: white;
+  font-size: 0.75rem; /* Slightly smaller badge */
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 3px 6px;
+  position: absolute;
+  top: -5px;
+  right: -8px;
+}
+
+
